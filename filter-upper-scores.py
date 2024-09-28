@@ -54,3 +54,59 @@ scores_3 = [343.20248, 334.50937, 334.04077, 325.34286, 325.19748, 324.85184,
             317.24320, 316.8812]
 filtered_scores_3 = filter_scores(scores_3)
 print("Filtered scores_3:", filtered_scores_3)
+
+
+def filter_scores_v2(scores):
+    """
+    Filters out significantly lower scores from a list of scores.
+    If the distribution is well-centered and falls within an acceptable range,
+    returns the distribution unchanged.
+
+    Parameters:
+    scores (list of float): The list of scores to filter.
+
+    Returns:
+    list of float: The filtered list of scores.
+    """
+
+    # Sort scores in descending order
+    sorted_scores = sorted(scores, reverse=True)
+    n = len(sorted_scores)
+
+    # Edge case: If the list has one or no elements, return it as is
+    if n <= 1:
+        return sorted_scores
+
+    # Compute normalized differences between consecutive scores
+    normalized_diffs = []
+    for i in range(n - 1):
+        current_score = sorted_scores[i]
+        next_score = sorted_scores[i + 1]
+        diff = current_score - next_score
+
+        # Avoid division by zero
+        if next_score != 0:
+            normalized_diff = diff / next_score
+        else:
+            normalized_diff = float('inf')  # Assign infinity if division by zero
+
+        normalized_diffs.append(normalized_diff)
+
+    # Find the largest normalized difference
+    max_norm_diff = max(normalized_diffs)
+    index_of_max = normalized_diffs.index(max_norm_diff)
+
+    # Define a threshold for significant gap
+    threshold = 0.5  # You can adjust this value based on your requirements
+
+    # If the largest normalized difference exceeds the threshold,
+    # consider it a significant gap and filter out the lower scores
+    if max_norm_diff >= threshold:
+        cutoff_index = index_of_max + 1  # +1 because differences are between i and i+1
+        filtered_scores = sorted_scores[:cutoff_index]
+    else:
+        # If no significant gap is found, return the original list
+        filtered_scores = sorted_scores
+
+    return filtered_scores
+
